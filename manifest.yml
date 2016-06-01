@@ -1,16 +1,10 @@
 ---
 applications:
-  - name: s3-service-broker
-    buildpack: java_buildpack
-    host: s3-broker
-    domain: apps.cloud.gov
-    path: target/s3-cf-service-broker-2.0.0-SNAPSHOT.jar
-    env:
-#      AWS_ACCESS_KEY: xxx
-#      AWS_SECRET_KEY: ""
-#      SECURITY_USER_NAME: ""
-#      SECURITY_USER_PASSWORD: ""
-      BUCKET_NAME_PREFIX: "cg-"
-      GROUP_NAME_PREFIX: "cg-s3-"
-      POLICY_NAME_PREFIX: "cg-s3-"
-      USER_NAME_PREFIX: "cg-s3-"
+- name: s3-service-broker
+  buildpack: java_buildpack
+  path: target/s3-cf-service-broker-2.0.0-SNAPSHOT.jar
+  env:
+    BUCKET_NAME_PREFIX: cg-
+    GROUP_NAME_PREFIX: cg-s3-
+    POLICY_NAME_PREFIX: cg-s3-
+    USER_NAME_PREFIX: cg-s3-

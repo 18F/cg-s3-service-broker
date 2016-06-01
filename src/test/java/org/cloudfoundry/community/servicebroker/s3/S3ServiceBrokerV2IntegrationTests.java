@@ -24,6 +24,9 @@ import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.identitymanagement.model.GetGroupRequest;
+import com.amazonaws.services.identitymanagement.model.GetGroupResult;
+import com.amazonaws.services.identitymanagement.model.NoSuchEntityException;
 import com.amazonaws.util.StringUtils;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.ValidatableResponse;
@@ -73,12 +76,12 @@ public class S3ServiceBrokerV2IntegrationTests extends ServiceBrokerV2Integratio
     }
 
     private boolean doesGroupExist(String groupName) {
-        for (Group g: iam.listGroups().getGroups()) {
-            if (g.getGroupName().equals(groupName)) {
-                return true;
-            }
+        try {
+            GetGroupResult result = iam.getGroup(new GetGroupRequest(groupName));
+            return true;
+        } catch (NoSuchEntityException e) {
+            return false;
         }
-        return false;
     }
 
     private void testBucketOperations(String accessKey, String secretKey, String bucketName) throws IOException {
