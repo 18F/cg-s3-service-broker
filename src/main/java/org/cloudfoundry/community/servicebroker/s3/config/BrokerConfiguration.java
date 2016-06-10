@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.ClientConfiguration;
 import org.cloudfoundry.community.servicebroker.config.BrokerApiVersionConfig;
 import org.cloudfoundry.community.servicebroker.model.Catalog;
@@ -53,6 +55,9 @@ public class BrokerConfiguration {
     @Autowired
     private AwsClientConfiguration awsClientConfiguration;
 
+    @Value("${AWS_REGION:US}")
+    private String region;
+
     @Bean
     public AWSCredentials awsCredentials() {
         return new BasicAWSCredentials(awsClientConfiguration.getAwsAccessKey(), awsClientConfiguration.getAwsSecretKey());
@@ -60,17 +65,27 @@ public class BrokerConfiguration {
 
     @Bean
     public AmazonIdentityManagement amazonIdentityManagement() {
-        return new AmazonIdentityManagementClient(awsCredentials(), awsClientConfiguration.toClientConfiguration());
+        AmazonIdentityManagement client = new AmazonIdentityManagementClient(awsCredentials(), awsClientConfiguration.toClientConfiguration());
+        client.setRegion(Region.getRegion(Regions.fromName(region)));
+        return client;
     }
 
     @Bean
     public AmazonS3 amazonS3() {
-        return new AmazonS3Client(awsCredentials(), awsClientConfiguration.toClientConfiguration());
+        AmazonS3 client = new AmazonS3Client(awsCredentials(), awsClientConfiguration.toClientConfiguration());
+        client.setRegion(Region.getRegion(Regions.fromName(region)));
+        return client;
     }
 
     @Bean
     public BucketGroupPolicy bucketGroupPolicy() throws IOException {
-        URL url = new ClassPathResource("default-bucket-policy.json").getURL();
+        String path;
+        if (region.equals("us-gov-west-1")) {
+            path = "default-bucket-policy-govcloud.json";
+        } else {
+            path = "default-bucket-policy.json";
+        }
+        URL url = new ClassPathResource(path).getURL();
         String policyDocument = Resources.toString(url, Charsets.UTF_8);
         return new BucketGroupPolicy(policyDocument);
     }

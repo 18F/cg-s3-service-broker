@@ -15,6 +15,8 @@
  */
 package org.cloudfoundry.community.servicebroker.s3;
 
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
 import com.amazonaws.services.identitymanagement.model.Group;
@@ -69,6 +71,9 @@ public class S3ServiceBrokerV2IntegrationTests extends ServiceBrokerV2Integratio
     @Value("${GROUP_NAME_PREFIX:cloud-foundry-s3-}")
     private String groupNamePrefix;
 
+    @Value("${AWS_REGION:US}")
+    private String region;
+
     @Override
     @Before
     public void setUp() throws Exception {
@@ -86,6 +91,7 @@ public class S3ServiceBrokerV2IntegrationTests extends ServiceBrokerV2Integratio
 
     private void testBucketOperations(String accessKey, String secretKey, String bucketName) throws IOException {
         AmazonS3Client instanceS3 = new AmazonS3Client(new BasicAWSCredentials(accessKey, secretKey), awsClientConfiguration.toClientConfiguration());
+        instanceS3.setRegion(Region.getRegion(Regions.fromName(region)));
         assertTrue(instanceS3.doesBucketExist(bucketName));
         String objectName = "testObject";
         String objectContent = "Hello World!";
