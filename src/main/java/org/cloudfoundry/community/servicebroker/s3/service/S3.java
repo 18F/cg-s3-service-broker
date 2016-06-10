@@ -124,6 +124,10 @@ public class S3 {
         }
     }
 
+    public String getBucketLocation(String bucketName) {
+        return s3.getBucketLocation(bucketName);
+    }
+
     public String getBucketNameForInstance(String instanceId) {
         return bucketNamePrefix + instanceId;
     }
