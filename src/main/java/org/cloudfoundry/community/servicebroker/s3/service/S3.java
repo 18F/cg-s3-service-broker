@@ -59,7 +59,7 @@ public class S3 {
             String organizationGuid, String spaceGuid) {
         String bucketName = getBucketNameForInstance(instanceId);
         logger.info("Creating bucket '{}' for serviceInstanceId '{}'", bucketName, instanceId);
-        Bucket bucket = s3.createBucket(bucketName, Region.fromValue(region));
+        Bucket bucket = s3.createBucket(bucketName);
 
         // TODO allow for additional, custom tagging options
         BucketTaggingConfiguration bucketTaggingConfiguration = new BucketTaggingConfiguration();
@@ -122,6 +122,10 @@ public class S3 {
         for (S3VersionSummary versionSummary : versionListing.getVersionSummaries()) {
             s3.deleteVersion(versionSummary.getBucketName(), versionSummary.getKey(), versionSummary.getVersionId());
         }
+    }
+
+    public String getBucketLocation(String bucketName) {
+        return s3.getBucketLocation(bucketName);
     }
 
     public String getBucketNameForInstance(String instanceId) {

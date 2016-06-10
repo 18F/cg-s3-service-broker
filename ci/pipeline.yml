@@ -9,6 +9,11 @@ jobs:
     params:
       AWS_ACCESS_KEY: {{test-aws-access-key-id}}
       AWS_SECRET_KEY: {{test-aws-secret-access-key}}
+      AWS_REGION: {{test-aws-region}}
+      BUCKET_NAME_PREFIX: cg-
+      GROUP_NAME_PREFIX: cg-s3-
+      POLICY_NAME_PREFIX: cg-s3-
+      USER_NAME_PREFIX: cg-s3-
   - put: deploy-s3-broker-app-staging
     params:
       manifest: s3-broker-build/manifest.yml
@@ -18,6 +23,7 @@ jobs:
         SECURITY_USER_PASSWORD: {{staging-auth-pass}}
         AWS_ACCESS_KEY: {{staging-aws-access-key-id}}
         AWS_SECRET_KEY: {{staging-aws-secret-access-key}}
+        AWS_REGION: {{staging-aws-region}}
 
     on_failure:
       put: slack
@@ -69,6 +75,11 @@ jobs:
     params:
       AWS_ACCESS_KEY: {{test-aws-access-key-id}}
       AWS_SECRET_KEY: {{test-aws-secret-access-key}}
+      AWS_REGION: {{test-aws-region}}
+      BUCKET_NAME_PREFIX: cg-
+      GROUP_NAME_PREFIX: cg-s3-
+      POLICY_NAME_PREFIX: cg-s3-
+      USER_NAME_PREFIX: cg-s3-
   - put: deploy-s3-broker-app-prod
     params:
       manifest: s3-broker-build/manifest.yml
@@ -78,6 +89,7 @@ jobs:
         SECURITY_USER_PASSWORD: {{prod-auth-pass}}
         AWS_ACCESS_KEY: {{prod-aws-access-key-id}}
         AWS_SECRET_KEY: {{prod-aws-secret-access-key}}
+        AWS_REGION: {{prod-aws-region}}
 
     on_failure:
       put: slack

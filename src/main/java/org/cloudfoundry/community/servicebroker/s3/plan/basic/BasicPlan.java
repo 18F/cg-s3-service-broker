@@ -86,10 +86,12 @@ public class BasicPlan implements Plan {
         iam.addUserToGroup(user, iam.getGroupNameForInstance(serviceInstance.getId()));
 
         Map<String, Object> credentials = new HashMap<String, Object>();
-        credentials.put("bucket", s3.getBucketNameForInstance(serviceInstance.getId()));
+        String bucketName = s3.getBucketNameForInstance(serviceInstance.getId());
+        credentials.put("bucket", bucketName);
         credentials.put("username", user.getUserName());
         credentials.put("access_key_id", accessKey.getAccessKeyId());
         credentials.put("secret_access_key", accessKey.getSecretAccessKey());
+        credentials.put("region", s3.getBucketLocation(bucketName));
         return new ServiceInstanceBinding(bindingId, serviceInstance.getId(), credentials, null, appGuid);
     }
 
