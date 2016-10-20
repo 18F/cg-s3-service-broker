@@ -5,3 +5,4 @@ applications:
   command: ./smoke-tests.sh
   services:
   - s3-smoke-tests-basic
+  - s3-smoke-tests-basic-public
