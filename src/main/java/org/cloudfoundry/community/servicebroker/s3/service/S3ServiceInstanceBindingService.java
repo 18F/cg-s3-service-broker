@@ -20,8 +20,11 @@ import org.cloudfoundry.community.servicebroker.exception.ServiceInstanceBinding
 import org.cloudfoundry.community.servicebroker.model.ServiceInstance;
 import org.cloudfoundry.community.servicebroker.model.ServiceInstanceBinding;
 import org.cloudfoundry.community.servicebroker.s3.plan.Plan;
+import org.cloudfoundry.community.servicebroker.s3.plan.basic.BasicPlan;
+import org.cloudfoundry.community.servicebroker.s3.plan.basic.BasicPublicPlan;
 import org.cloudfoundry.community.servicebroker.service.ServiceInstanceBindingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -29,24 +32,35 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class S3ServiceInstanceBindingService implements ServiceInstanceBindingService {
-    private final Plan plan;
+    private final BasicPlan basicPlan;
+
+    private final BasicPublicPlan basicPublicPlan;
 
     @Autowired
-    public S3ServiceInstanceBindingService(Plan plan) {
-        this.plan = plan;
+    public S3ServiceInstanceBindingService(BasicPlan basicPlan, BasicPublicPlan basicPublicPlan) {
+        this.basicPlan = basicPlan;
+        this.basicPublicPlan = basicPublicPlan;
+    }
+
+    private Plan getPlanById(String planId) {
+        if (planId.equals("s3-basic-public-plan")) {
+            return basicPublicPlan;
+        } else {
+            return basicPlan;
+        }
     }
 
     @Override
     public ServiceInstanceBinding createServiceInstanceBinding(String bindingId, ServiceInstance serviceInstance,
             String serviceId, String planId, String appGuid) throws ServiceInstanceBindingExistsException,
             ServiceBrokerException {
-        return plan.createServiceInstanceBinding(bindingId, serviceInstance, serviceId, planId, appGuid);
+        return getPlanById(planId).createServiceInstanceBinding(bindingId, serviceInstance, serviceId, planId, appGuid);
     }
 
     @Override
     public ServiceInstanceBinding deleteServiceInstanceBinding(String bindingId, ServiceInstance serviceInstance,
             String serviceId, String planId) throws ServiceBrokerException {
-        return plan.deleteServiceInstanceBinding(bindingId, serviceInstance, serviceId, planId);
+        return getPlanById(planId).deleteServiceInstanceBinding(bindingId, serviceInstance, serviceId, planId);
     }
 
     @Override
