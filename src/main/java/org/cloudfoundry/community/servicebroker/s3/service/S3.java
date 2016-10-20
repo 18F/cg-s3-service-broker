@@ -32,6 +32,7 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.Region;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.S3VersionSummary;
+import com.amazonaws.services.s3.model.SetBucketPolicyRequest;
 import com.amazonaws.services.s3.model.TagSet;
 import com.amazonaws.services.s3.model.VersionListing;
 import com.google.common.collect.Lists;
@@ -47,6 +48,7 @@ public class S3 {
     private final AmazonS3 s3;
     private final String bucketNamePrefix;
     private final String region;
+
 
     @Autowired
     public S3(AmazonS3 s3, @Value("${BUCKET_NAME_PREFIX:cloud-foundry-}") String bucketNamePrefix, @Value("${AWS_REGION:US}") String region) {
@@ -74,6 +76,27 @@ public class S3 {
 
         return bucket;
     }
+
+    public Bucket createBucketForInstance(String instanceId, ServiceDefinition service, String planId,
+            String organizationGuid, String spaceGuid, String bucketPolicy) {
+
+            Bucket bucket = createBucketForInstance(instanceId, service, planId, organizationGuid, spaceGuid);
+
+            bucketPolicy = bucketPolicy.replace("${bucketName}", bucket.getName());
+
+            if (region.equals("us-gov-west-1")) {
+                bucketPolicy = bucketPolicy.replace("${partition}", "aws-us-gov");
+            } else {
+                bucketPolicy = bucketPolicy.replace("${partition}", "aws");
+
+            }
+            logger.info("Adding policy to bucket '{}': {}", bucket.getName(), bucketPolicy);
+
+            s3.setBucketPolicy(new SetBucketPolicyRequest(bucket.getName(), bucketPolicy));
+
+            return bucket;
+    }
+
 
     public void deleteBucket(String id) {
         String bucketName = getBucketNameForInstance(id);

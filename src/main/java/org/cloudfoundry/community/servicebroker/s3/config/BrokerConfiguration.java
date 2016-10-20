@@ -27,6 +27,7 @@ import org.cloudfoundry.community.servicebroker.model.Catalog;
 import org.cloudfoundry.community.servicebroker.model.Plan;
 import org.cloudfoundry.community.servicebroker.model.ServiceDefinition;
 import org.cloudfoundry.community.servicebroker.s3.plan.basic.BasicPlan;
+import org.cloudfoundry.community.servicebroker.s3.plan.basic.BasicPublicPlan;
 import org.cloudfoundry.community.servicebroker.s3.policy.BucketGroupPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -116,6 +117,7 @@ public class BrokerConfiguration {
     private List<Plan> getPlans() {
         List<Plan> myPlans = new ArrayList<Plan>();
         myPlans.add(BasicPlan.getPlan());
+        myPlans.add(BasicPublicPlan.getPlan());
         return myPlans;
     }
 }

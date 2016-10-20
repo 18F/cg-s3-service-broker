@@ -22,8 +22,12 @@ import org.cloudfoundry.community.servicebroker.exception.ServiceInstanceExistsE
 import org.cloudfoundry.community.servicebroker.model.ServiceDefinition;
 import org.cloudfoundry.community.servicebroker.model.ServiceInstance;
 import org.cloudfoundry.community.servicebroker.s3.plan.Plan;
+import org.cloudfoundry.community.servicebroker.s3.plan.basic.BasicPlan;
+import org.cloudfoundry.community.servicebroker.s3.plan.basic.BasicPublicPlan;
+
 import org.cloudfoundry.community.servicebroker.service.ServiceInstanceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -31,32 +35,43 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class S3ServiceInstanceService implements ServiceInstanceService {
-    private final Plan plan;
+    private final BasicPlan basicPlan;
+
+    private final BasicPublicPlan basicPublicPlan;
 
     @Autowired
-    public S3ServiceInstanceService(Plan plan) {
-        this.plan = plan;
+    public S3ServiceInstanceService(BasicPlan basicPlan, BasicPublicPlan basicPublicPlan) {
+        this.basicPlan = basicPlan;
+        this.basicPublicPlan = basicPublicPlan;
+    }
+
+    private Plan getPlanById(String planId) {
+        if (planId.equals("s3-basic-public-plan")) {
+            return basicPublicPlan;
+        } else {
+            return basicPlan;
+        }
     }
 
     @Override
     public ServiceInstance createServiceInstance(ServiceDefinition service, String serviceInstanceId, String planId,
             String organizationGuid, String spaceGuid) throws ServiceInstanceExistsException, ServiceBrokerException {
-        return plan.createServiceInstance(service, serviceInstanceId, planId, organizationGuid, spaceGuid);
+        return getPlanById(planId).createServiceInstance(service, serviceInstanceId, planId, organizationGuid, spaceGuid);
     }
 
     @Override
     public ServiceInstance deleteServiceInstance(String id, String serviceId, String planId)
             throws ServiceBrokerException {
-        return plan.deleteServiceInstance(id);
+        return getPlanById(planId).deleteServiceInstance(id);
     }
 
     @Override
     public List<ServiceInstance> getAllServiceInstances() {
-        return plan.getAllServiceInstances();
+        return basicPlan.getAllServiceInstances();
     }
 
     @Override
     public ServiceInstance getServiceInstance(String id) {
-        return plan.getServiceInstance(id);
+        return basicPlan.getServiceInstance(id);
     }
 }

@@ -27,26 +27,32 @@ import org.cloudfoundry.community.servicebroker.s3.service.S3;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.net.URL;
+import org.springframework.core.io.ClassPathResource;
+import com.google.common.io.Resources;
+import com.google.common.base.Charsets;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component("basic")
-public class BasicPlan implements Plan {
-    public static final String PLAN_ID = "s3-basic-plan";
+@Component("basic-public")
+public class BasicPublicPlan implements Plan {
+    public static final String PLAN_ID = "s3-basic-public-plan";
 
     private final BasicPlanIam iam;
     private final S3 s3;
 
     @Autowired
-    public BasicPlan(BasicPlanIam iam, S3 s3) {
+    public BasicPublicPlan(BasicPlanIam iam, S3 s3) {
         this.iam = iam;
         this.s3 = s3;
     }
 
     public static org.cloudfoundry.community.servicebroker.model.Plan getPlan() {
-        return new org.cloudfoundry.community.servicebroker.model.Plan(PLAN_ID, "basic", "An S3 plan providing a single bucket with unlimited storage.",
+        return new org.cloudfoundry.community.servicebroker.model.Plan(PLAN_ID, "basic-public", "Single public S3 bucket with unlimited storage. All data in this bucket is public.",
                 getPlanMetadata());
     }
 
@@ -57,14 +63,24 @@ public class BasicPlan implements Plan {
     }
 
     private static List<String> getPlanBullets() {
-        return Arrays.asList("Single S3 bucket", "Unlimited storage", "Unlimited number of objects");
+        return Arrays.asList("Single S3 bucket", "Unlimited storage", "Unlimited number of objects", "All data in this bucket is public");
     }
 
     public ServiceInstance createServiceInstance(ServiceDefinition service, String serviceInstanceId, String planId,
-                                                 String organizationGuid, String spaceGuid) {
-        Bucket bucket = s3.createBucketForInstance(serviceInstanceId, service, planId, organizationGuid, spaceGuid);
+                                                 String organizationGuid, String spaceGuid){
+
+        String policyDocument;
+        try {
+            URL url = new ClassPathResource("public-bucket-policy.json").getURL();
+            policyDocument = Resources.toString(url, Charsets.UTF_8);
+        } catch (IOException e) {
+            return null;
+        }
+
+        Bucket bucket = s3.createBucketForInstance(serviceInstanceId, service, planId, organizationGuid, spaceGuid, policyDocument);
         iam.createGroupForInstance(serviceInstanceId, bucket.getName());
         iam.applyGroupPolicyForInstance(serviceInstanceId, bucket.getName());
+      
         return new ServiceInstance(serviceInstanceId, service.getId(), planId, organizationGuid, spaceGuid, null);
     }
 
