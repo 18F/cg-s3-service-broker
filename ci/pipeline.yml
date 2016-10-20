@@ -17,7 +17,7 @@ jobs:
   - put: deploy-s3-broker-app-staging
     params:
       manifest: s3-broker-build/manifest.yml
-      current_app_name: s3-broker
+      current_app_name: s3-service-broker
       environment_variables:
         SECURITY_USER_NAME: {{staging-auth-name}}
         SECURITY_USER_PASSWORD: {{staging-auth-pass}}
@@ -30,7 +30,7 @@ jobs:
       params:
         text: |
           :x: FAILED to deploy s3-broker on staging
-          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+          <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
         channel: {{slack-channel}}
         username: {{slack-username}}
         icon_url: {{slack-icon-url}}
@@ -39,7 +39,7 @@ jobs:
       params:
         text: |
           :white_check_mark: Successfully deployed s3-broker on staging
-          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+          <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
         channel: {{slack-channel}}
         username: {{slack-username}}
         icon_url: {{slack-icon-url}}
@@ -63,7 +63,7 @@ jobs:
     file: s3-broker-app/ci/run-smoke-tests.yml
     params:
       <<: *staging-cf-creds
-      SERVICE_PLAN: basic
+      SERVICE_PLANS: basic basic-public
 
 - name: push-s3-broker-prod
   plan:
@@ -83,7 +83,7 @@ jobs:
   - put: deploy-s3-broker-app-prod
     params:
       manifest: s3-broker-build/manifest.yml
-      current_app_name: s3-broker
+      current_app_name: s3-service-broker
       environment_variables:
         SECURITY_USER_NAME: {{prod-auth-name}}
         SECURITY_USER_PASSWORD: {{prod-auth-pass}}
@@ -96,7 +96,7 @@ jobs:
       params:
         text: |
           :x: FAILED to deploy s3-broker on production
-          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+          <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
         channel: {{slack-channel}}
         username: {{slack-username}}
         icon_url: {{slack-icon-url}}
@@ -105,7 +105,7 @@ jobs:
       params:
         text: |
           :white_check_mark: Successfully deployed s3-broker on production
-          <$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+          <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
         channel: {{slack-channel}}
         username: {{slack-username}}
         icon_url: {{slack-icon-url}}
@@ -129,7 +129,7 @@ jobs:
     file: s3-broker-app/ci/run-smoke-tests.yml
     params:
       <<: *prod-cf-creds
-      SERVICE_PLAN: basic
+      SERVICE_PLANS: basic basic-public
 
 resources:
 - name: s3-broker-app
